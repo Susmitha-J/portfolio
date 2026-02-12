@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Starry Night + Layered Waves</title>
+
+<style>
+html,body{margin:0;background:#020617;font-family:system-ui;overflow-x:hidden;}
+.spacer{min-height:28vh;display:flex;align-items:center;justify-content:center;color:#e5e7eb;opacity:.85;padding:18px;text-align:center;}
+.art-break{
+  width:100vw;
+  margin-left:calc(50% - 50vw);
+  height:clamp(420px,70vh,920px);
+  position:relative;
+  overflow:hidden;
+}
+svg{width:100%;height:100%;display:block;}
+
+.label{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.pill{
+  font-size:13px; letter-spacing:.12em; text-transform:uppercase;
+  padding:10px 16px; border-radius:999px;
+  border:1px solid rgba(148,163,184,.2);
+  background:rgba(2,6,23,.5);
+  backdrop-filter:blur(8px);
+  color:#fff;
+}
+
+</style>
+</head>
+
+<body>
+<div class="spacer">Wave-shaped section + layered blue gradients + motion.</div>
+
+<section class="art-break">
+<svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+
+  <defs>
+    <!-- Sky motion inside painting -->
+    <filter id="skyFlow">
+      <feTurbulence type="fractalNoise"
+        baseFrequency="0.004 0.008"
+        numOctaves="2"
+        seed="3"
+        result="noise">
+        <animate attributeName="baseFrequency"
+          dur="14s"
+          values="0.004 0.008; 0.006 0.010; 0.004 0.007; 0.003 0.006; 0.004 0.008"
+          repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="22"/>
+    </filter>
+
+    <!-- Clip only sky -->
+    <clipPath id="clipSky">
+      <rect x="0" y="0" width="1000" height="430"/>
+    </clipPath>
+
+    <!-- Wave-shaped SECTION mask (top + bottom) -->
+    <mask id="sectionMask">
+      <rect x="0" y="0" width="1000" height="600" fill="black"/>
+      <path fill="white" d="
+        M 0 95
+        C 120 35, 240 35, 360 95
+        C 480 155, 600 155, 720 95
+        C 840 35, 920 35, 1000 95
+        L 1000 505
+        C 880 565, 760 565, 640 505
+        C 520 445, 400 445, 280 505
+        C 160 565, 80 565, 0 505
+        Z
+      "/>
+    </mask>
+
+    <!-- Layer gradients (like your reference) -->
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B3AAE" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#1E5BFF" stop-opacity="0.85"/>
+    </linearGradient>
+
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="0.6">
+      <stop offset="0" stop-color="#2C6BFF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#6EA8FF" stop-opacity="0.45"/>
+    </linearGradient>
+
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="0.2">
+      <stop offset="0" stop-color="#8BB8FF" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#CFE3FF" stop-opacity="0.34"/>
+    </linearGradient>
+  </defs>
+
+  <!-- EVERYTHING lives inside the wave-shaped section -->
+  <g mask="url(#sectionMask)">
+
+    <!-- Starry Night base -->
+    <image href="starry-night.png" x="-80" y="-60" width="1160" height="720"/>
+
+    <!-- Motion only on the sky region -->
+    <g clip-path="url(#clipSky)" opacity="0.60">
+      <image href="starry-night.png" x="-80" y="-60" width="1160" height="720" filter="url(#skyFlow)"/>
+    </g>
+
+    <!-- ===== Layered wave gradient overlays ===== -->
+    <!-- Big dark wave -->
+    <path fill="url(#g1)" opacity="0.55" d="
+      M -30 190
+      C 150 80, 360 120, 520 180
+      C 700 250, 840 160, 1050 110
+      L 1050 600
+      L -30 600
+      Z
+    ">
+      <animateTransform attributeName="transform" type="translate"
+        dur="10s" repeatCount="indefinite"
+        values="0 0; -35 12; 0 0"/>
+    </path>
+
+    <!-- Mid wave -->
+    <path fill="url(#g2)" opacity="0.55" d="
+      M -60 285
+      C 120 210, 320 260, 500 300
+      C 700 340, 860 290, 1100 225
+      L 1100 600
+      L -60 600
+      Z
+    ">
+      <animateTransform attributeName="transform" type="translate"
+        dur="14s" repeatCount="indefinite"
+        values="0 0; 40 -10; 0 0"/>
+    </path>
+
+    <!-- Light wave -->
+    <path fill="url(#g3)" opacity="0.65" d="
+      M -80 380
+      C 140 330, 330 360, 520 400
+      C 720 440, 880 420, 1120 360
+      L 1120 600
+      L -80 600
+      Z
+    ">
+      <animateTransform attributeName="transform" type="translate"
+        dur="18s" repeatCount="indefinite"
+        values="0 0; -30 -8; 0 0"/>
+    </path>
+
+  </g>
+</svg>
+
+<div class="label"><div class="pill">STARRY NIGHT, ALIVE</div></div>
+</section>
+
+<div class="spacer">
+  Want more layers? Add another path with a lighter gradient + slower animation.
+</div>
+
+</body>
+</html>

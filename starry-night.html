@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Starry Night Brand Motion</title>
+
+<style>
+
+/* ===== CHANGE BRAND COLOR HERE ===== */
+:root{
+  --brand-r: 0;
+  --brand-g: 200;
+  --brand-b: 170;
+}
+
+html,body{
+  margin:0;
+  height:100%;
+  background:#020617;
+  color:#e5e7eb;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  overflow-x:hidden;
+}
+
+/* Cursor glow */
+.bg{
+  position:fixed;
+  inset:0;
+  z-index:-5;
+  pointer-events:none;
+}
+.bg::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(900px 650px at var(--mx,50vw) var(--my,35vh),
+      rgba(var(--brand-r),var(--brand-g),var(--brand-b), .18), transparent 60%);
+  animation:drift 14s ease-in-out infinite alternate;
+}
+@keyframes drift{
+  0%{transform:translate3d(-.8%,-.5%,0) scale(1)}
+  100%{transform:translate3d(.8%,.5%,0) scale(1.02)}
+}
+
+.cursor-bubble{
+  position:fixed;
+  width:360px;
+  height:360px;
+  left:0;
+  top:0;
+  border-radius:999px;
+  pointer-events:none;
+  z-index:-4;
+  filter:blur(65px);
+  opacity:.75;
+  background:
+    radial-gradient(circle at 35% 35%,
+      rgba(var(--brand-r),var(--brand-g),var(--brand-b), .25),
+      rgba(var(--brand-r),var(--brand-g),var(--brand-b), .10) 45%,
+      transparent 72%);
+  transform:translate(-50%,-50%);
+}
+
+.spacer{
+  min-height:40vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:20px;
+  opacity:.85;
+}
+
+.art-break{
+  width:100vw;
+  margin-left:calc(50% - 50vw);
+  height:clamp(420px,70vh,920px);
+  position:relative;
+  overflow:hidden;
+}
+
+svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.overlay{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(to bottom,
+      rgba(2,6,23,.35),
+      rgba(2,6,23,.12));
+}
+
+.brand-blend{
+  mix-blend-mode:overlay;
+}
+
+.label{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.pill{
+  font-size:13px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.18);
+  background:rgba(2,6,23,.45);
+  backdrop-filter:blur(8px);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="cursor-bubble" id="cursorBubble"></div>
+
+<div class="spacer">
+  Original colors preserved. Brand tone blended.
+</div>
+
+<section class="art-break">
+<svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+
+  <defs>
+    <!-- Sky motion -->
+    <filter id="skyFlow">
+      <feTurbulence type="fractalNoise"
+        baseFrequency="0.004 0.008"
+        numOctaves="2"
+        seed="3">
+        <animate attributeName="baseFrequency"
+          dur="14s"
+          values="0.004 0.008; 0.006 0.010; 0.004 0.007; 0.003 0.006; 0.004 0.008"
+          repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" scale="22"/>
+    </filter>
+
+    <clipPath id="clipSky">
+      <rect x="0" y="0" width="1000" height="430"/>
+    </clipPath>
+  </defs>
+
+  <!-- Base painting -->
+  <image href="starry-night.png"
+         x="-80" y="-60"
+         width="1160" height="720"/>
+
+  <!-- Brand color blend -->
+  <rect x="0" y="0" width="1000" height="600"
+        fill="rgb(var(--brand-r),var(--brand-g),var(--brand-b))"
+        opacity="0.18"
+        class="brand-blend"/>
+
+  <!-- Sky motion -->
+  <g clip-path="url(#clipSky)">
+    <image href="starry-night.png"
+           x="-80" y="-60"
+           width="1160" height="720"
+           filter="url(#skyFlow)"
+           opacity="0.55"/>
+  </g>
+
+</svg>
+
+<div class="overlay"></div>
+<div class="label">
+  <div class="pill">Starry Night, Reimagined</div>
+</div>
+</section>
+
+<script>
+const bubble = document.getElementById('cursorBubble');
+let targetX = window.innerWidth * 0.5;
+let targetY = window.innerHeight * 0.35;
+let currentX = targetX, currentY = targetY;
+
+function setVars(x,y){
+  document.body.style.setProperty('--mx', x + 'px');
+  document.body.style.setProperty('--my', y + 'px');
+  bubble.style.transform =
+    'translate(' + x + 'px,' + y + 'px) translate(-50%,-50%)';
+}
+
+window.addEventListener('mousemove', (e)=>{
+  targetX = e.clientX;
+  targetY = e.clientY;
+});
+
+function animate(){
+  currentX += (targetX - currentX) * 0.08;
+  currentY += (targetY - currentY) * 0.08;
+  setVars(currentX,currentY);
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>

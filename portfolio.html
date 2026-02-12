@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Susmitha Jejigari | Backend Engineer</title>
+<meta content="Portfolio of Susmitha Jejigari: Java/Spring Boot backend, distributed systems, and application security." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+
+<style>
+:root{
+  --accent:#38bdf8; --accent2:#a855f7;
+  --bg-dark:#020617; --fg-dark:#e5e7eb;
+  --bg-light:#f8fafc; --fg-light:#0b1220;
+  --card-dark:rgba(15,23,42,.52); --card-light:rgba(255,255,255,.82);
+  --radius:16px; --pill:999px;
+  --shadow-soft:0 10px 30px rgba(2,6,23,.18);
+  --container:1120px; --pad-x:clamp(18px, 3vw, 42px);
+  --t-fast:140ms ease-out; --t-med:220ms ease-out;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  overflow-x:hidden;
+  transition:background var(--t-med),color var(--t-med);
+}
+body[data-theme="dark"]{background:var(--bg-dark);color:var(--fg-dark);}
+body[data-theme="light"]{background:var(--bg-light);color:var(--fg-light);}
+body[data-theme="terminal"]{background:#e5e7eb;color:#111827;}
+
+.bg{position:fixed;inset:0;z-index:-5;pointer-events:none;}
+.bg::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(900px 650px at var(--mx,50vw) var(--my,35vh), rgba(56,189,248,.18), transparent 60%),
+    radial-gradient(800px 520px at calc(100% - var(--mx,50vw)) calc(100% - var(--my,35vh)), rgba(168,85,247,.14), transparent 62%);
+  animation:drift 14s ease-in-out infinite alternate;
+  transform:translate3d(0,0,0);
+}
+@keyframes drift{
+  0%{transform:translate3d(-.8%,-.5%,0) scale(1)}
+  100%{transform:translate3d(.8%,.5%,0) scale(1.02)}
+}
+
+.cursor-bubble{
+  position:fixed;width:420px;height:420px;left:0;top:0;border-radius:999px;
+  pointer-events:none;z-index:-4;filter:blur(70px);opacity:.92;
+  background:radial-gradient(circle at 35% 35%, rgba(148,163,184,.40), rgba(148,163,184,.10) 45%, transparent 70%);
+  transition:opacity var(--t-med);
+  transform:translate(-50%,-50%);
+}
+body[data-theme="dark"] .cursor-bubble{
+  opacity:.72;
+  background:radial-gradient(circle at 35% 35%, rgba(148,163,184,.26), rgba(56,189,248,.12) 40%, transparent 72%);
+}
+body[data-theme="light"] .cursor-bubble{
+  opacity:.85;
+  background:radial-gradient(circle at 35% 35%, rgba(15,23,42,.18), rgba(56,189,248,.10) 42%, transparent 74%);
+}
+body[data-theme="terminal"] .bg, body[data-theme="terminal"] .cursor-bubble{display:none;}
+
+@media (prefers-reduced-motion: reduce){
+  .bg::before{animation:none}
+  .cursor-bubble{display:none}
+  .reveal{transition:none !important}
+}
+
+/* =========================
+   TOPBAR (FIXED + SCROLL BG)
+   ========================= */
+.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:50;
+
+  display:grid;
+  grid-template-columns: auto 1fr auto;
+  align-items:center;
+  gap: 18px;
+
+  padding: 12px var(--pad-x);
+  pointer-events:none;
+
+  background: transparent;               /* default: transparent */
+  border-bottom: 1px solid transparent;  /* default: no border */
+  backdrop-filter: none;                 /* default: no blur */
+  box-shadow: none;
+
+  transition:
+    background var(--t-med),
+    border-color var(--t-med),
+    box-shadow var(--t-med);
+}
+
+/* This is the scroll state that actually separates navbar from content */
+.topbar.is-scrolled{
+  background: rgba(2,6,23,.78);
+  border-bottom: 1px solid rgba(148,163,184,.16);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 40px rgba(2,6,23,.25);
+}
+body[data-theme="light"] .topbar.is-scrolled{
+  background: rgba(248,250,252,.85);
+  border-bottom-color: rgba(15,23,42,.10);
+  box-shadow: 0 14px 40px rgba(2,6,23,.10);
+}
+
+/* Logo left */
+.logo{
+  pointer-events:auto;
+  display:flex;
+  align-items: baseline;
+  gap: 10px;
+  text-decoration:none;
+  color: inherit;
+  opacity: 0.92;
+  min-width: 210px;
+}
+.logo-mark{
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-size: 16px;
+  line-height: 1;
+  background: linear-gradient(120deg, rgba(56,189,248,1), rgba(168,85,247,1));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Nav centered */
+.nav{
+  pointer-events:auto;
+  justify-self:center;
+  display:flex;
+  align-items:center;
+  gap: 16px;
+  transform: translateX(10px);
+}
+.nav a{
+  color: inherit;
+  text-decoration:none;
+  font-size: 12.8px;
+  opacity: .78;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: opacity var(--t-fast), background var(--t-med);
+}
+.nav a:hover{opacity:1; background: rgba(56,189,248,.10);}
+
+/* Theme buttons right */
+.switch{
+  pointer-events:auto;
+  justify-self:end;
+  display:flex;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.switch button{
+  border: 1px solid rgba(148,163,184,.18);
+  background: rgba(2,6,23,.08);
+  color: inherit;
+  cursor:pointer;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  opacity: .72;
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  transition: opacity var(--t-fast), background var(--t-med), transform var(--t-fast), border-color var(--t-med);
+}
+body[data-theme="light"] .switch button{
+  border-color: rgba(15,23,42,.12);
+  background: rgba(255,255,255,.55);
+}
+body[data-theme="terminal"] .switch button{
+  border-color: rgba(15,23,42,.18);
+  background: rgba(255,255,255,.7);
+}
+.switch button:hover{opacity:1; background: rgba(56,189,248,.10);}
+.switch button[aria-pressed="true"]{
+  opacity:1;
+  background: rgba(56,189,248,.14);
+  border-color: rgba(56,189,248,.35);
+  transform: translateY(-1px);
+}
+body[data-theme="terminal"] .switch button[aria-pressed="true"]{
+  background: rgba(17,24,39,.92);
+  color: #e5e7eb;
+  border-color: rgba(17,24,39,.92);
+}
+
+/* ===== Starry Night moving divider ===== */
+.art-break{
+  position: relative;
+
+  /* taller */
+  height: clamp(260px, 42vh, 520px);
+
+  overflow: hidden;
+  border-top: 1px solid rgba(148,163,184,.14);
+  border-bottom: 1px solid rgba(148,163,184,.14);
+  margin: 34px 0;
+}
+
+/* full page width even if placed inside .container */
+.art-break--full{
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  border-radius: 0; /* optional: true full-bleed look */
+}
+
+/* The artwork layer */
+.art-break::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image: url("starry-night.png"); /* <-- change this filename */
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  /* Start position */
+  background-position: 50% 40%;
+
+  /* Motion */
+  animation: starryPan 22s ease-in-out infinite alternate;
+  transform: scale(1.08);
+  filter: saturate(1.05) contrast(1.03);
+}
+
+/* Subtle soft overlay so text/content stays readable */
+.art-break__overlay{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(900px 300px at 30% 40%, rgba(56,189,248,.10), transparent 65%),
+    radial-gradient(700px 260px at 70% 60%, rgba(168,85,247,.10), transparent 62%),
+    linear-gradient(to bottom, rgba(2,6,23,.35), rgba(2,6,23,.15));
+  pointer-events:none;
+}
+
+/* Optional content */
+.art-break__content{
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 0 18px;
+  text-align:center;
+}
+
+.art-break__line{
+  margin:0;
+  font-size: 13.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .9;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,.18);
+  background: rgba(2,6,23,.45);
+  backdrop-filter: blur(8px);
+}
+
+/* Theme adjustments */
+body[data-theme="light"] .art-break__line{
+  background: rgba(255,255,255,.55);
+  border-color: rgba(15,23,42,.10);
+}
+
+/* Motion path */
+@keyframes starryPan{
+  0%   { background-position: 45% 35%; }
+  50%  { background-position: 55% 45%; }
+  100% { background-position: 50% 60%; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .art-break::before{ animation: none; }
+}
+
+
+.art-break::after{
+  content:"";
+  position:absolute; inset:-20%;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(255,255,255,.10), transparent 45%),
+    radial-gradient(circle at 70% 55%, rgba(255,255,255,.08), transparent 50%);
+  mix-blend-mode: soft-light;
+  animation: shimmer 10s ease-in-out infinite alternate;
+  filter: blur(18px);
+  opacity: .55;
+}
+
+@keyframes shimmer{
+  0%{ transform: translate(-2%, -1%) rotate(-1deg); }
+  100%{ transform: translate(2%, 1%) rotate(1deg); }
+}
+
+
+/* no navbar in terminal mode (keep switch only) */
+body[data-theme="terminal"] .logo,
+body[data-theme="terminal"] .nav{display:none !important;}
+
+/* keep content below fixed header */
+.wrap{min-height:100vh;padding:96px var(--pad-x) 60px;}
+.term-wrap{min-height:100vh;padding:96px var(--pad-x) 56px;}
+
+.container{width:min(var(--container),100%);margin:0 auto;}
+
+.hero{display:grid;grid-template-columns:1.55fr 1fr;gap:28px;align-items:start;padding:18px 0 4px;}
+.kicker{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;}
+h1{margin:10px 0 12px;font-size:clamp(34px,3.2vw,48px);line-height:1.06;letter-spacing:-.02em;}
+.accent{color:var(--accent);}
+.lead{margin:0;font-size:15.5px;line-height:1.85;max-width:62ch;opacity:.92;}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.btn{
+  text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 16px;border-radius:var(--pill);font-size:13.5px;border:1px solid transparent;
+  cursor:pointer;transition:transform var(--t-fast),border-color var(--t-med),background var(--t-med),box-shadow var(--t-med);
+  user-select:none;color:inherit;
+}
+.btn.primary{color:#f8fafc;background:linear-gradient(120deg,#0ea5e9,#6366f1);box-shadow:0 14px 30px rgba(37,99,235,.45);}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 18px 40px rgba(37,99,235,.60);}
+.btn.ghost{background:rgba(15,23,42,.30);border-color:rgba(148,163,184,.22);}
+body[data-theme="light"] .btn.ghost{background:rgba(255,255,255,.70);border-color:rgba(15,23,42,.10);}
+.btn.ghost:hover{transform:translateY(-1px);border-color:rgba(56,189,248,.60);}
+
+.panel{border-radius:var(--radius);padding:16px;border:1px solid rgba(148,163,184,.18);background:var(--card-dark);backdrop-filter:blur(10px);}
+body[data-theme="light"] .panel{background:var(--card-light);border-color:rgba(15,23,42,.12);}
+.panel h3{margin:0 0 8px;font-size:14px;}
+.panel p{margin:0;font-size:13.5px;line-height:1.75;opacity:.92;}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.pill{font-size:12px;padding:6px 10px;border-radius:var(--pill);border:1px dashed rgba(148,163,184,.26);opacity:.9;}
+
+.scroll-hint{display:flex;justify-content:center;margin:34px 0 10px;opacity:.55;}
+.scroll-hint span{width:52px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(148,163,184,.9),transparent);}
+
+section{padding:44px 0;border-top:1px solid rgba(148,163,184,.14);}
+body[data-theme="light"] section{border-top-color:rgba(15,23,42,.10);}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:14px;}
+.section-head h2{margin:0;font-size:16px;letter-spacing:.02em;}
+.sub{margin:0;font-size:13px;opacity:.75;}
+
+.grid{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr));}
+.card{border-radius:var(--radius);padding:14px;border:1px solid rgba(148,163,184,.18);background:rgba(15,23,42,.20);backdrop-filter:blur(10px);}
+body[data-theme="light"] .card{background:rgba(255,255,255,.74);border-color:rgba(15,23,42,.10);}
+.card h3{margin:0 0 6px;font-size:14px;}
+.card p{margin:0 0 10px;font-size:13.3px;line-height:1.7;opacity:.92;}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.tag{font-size:11.5px;padding:4px 8px;border-radius:var(--pill);border:1px solid rgba(148,163,184,.20);opacity:.85;}
+.links{display:flex;gap:10px;margin-top:10px;font-size:12.5px;flex-wrap:wrap;}
+.links a{color:inherit;text-decoration:none;opacity:.84;}
+.links a:hover{opacity:1;text-decoration:underline;}
+
+.timeline{display:grid;gap:14px;}
+.titem{border-radius:var(--radius);padding:14px;border:1px solid rgba(148,163,184,.18);background:rgba(15,23,42,.16);backdrop-filter:blur(10px);}
+body[data-theme="light"] .titem{background:rgba(255,255,255,.72);border-color:rgba(15,23,42,.10);}
+.tcompany{font-weight:600;}
+.trole{font-size:13.2px;opacity:.92;margin-top:6px;}
+.tdates{font-size:12.5px;opacity:.72;}
+ul{margin:10px 0 0;padding-left:18px;}
+li{font-size:13px;line-height:1.65;opacity:.92;margin:6px 0;}
+
+.skill-groups{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));}
+.skill-group .sg-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.skill-group .sg-head h3{margin:0;font-size:14px;}
+.skill-set{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+
+.gallery{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr));}
+.gcard{border-radius:var(--radius);overflow:hidden;border:1px solid rgba(148,163,184,.18);background:rgba(15,23,42,.10);}
+body[data-theme="light"] .gcard{background:rgba(255,255,255,.70);border-color:rgba(15,23,42,.10);}
+.gcard .ph{aspect-ratio:4/3;background:linear-gradient(135deg,rgba(148,163,184,.22),rgba(56,189,248,.10));display:flex;align-items:center;justify-content:center;font-size:12.5px;opacity:.85;}
+.gcard .cap{padding:10px 12px;font-size:12.8px;line-height:1.5;opacity:.92;}
+
+footer{padding:26px 0 0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;opacity:.9;}
+.fine{font-size:13px;opacity:.82;}
+
+.reveal{opacity:0;transform:translateY(10px);transition:opacity 500ms ease,transform 500ms ease;}
+.reveal.on{opacity:1;transform:translateY(0);}
+
+.terminal-view{display:none;}
+body[data-theme="terminal"] .standard-view{display:none;}
+body[data-theme="terminal"] .terminal-view{display:block;}
+
+.term-container{width:min(980px,100%);margin:0 auto;}
+.term-window{
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 22px 70px rgba(2,6,23,.35);
+  border:1px solid rgba(17,24,39,.18);
+  background:#020617;color:#e5e7eb;
+  display:flex;flex-direction:column;min-height:560px;
+}
+.term-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(148,163,184,.16);font-size:12px;}
+.dots{display:flex;gap:6px;align-items:center;}
+.dot{width:10px;height:10px;border-radius:999px;}
+.dot.r{background:#f87171} .dot.y{background:#facc15} .dot.g{background:#4ade80}
+.term-body{
+  padding:14px;
+  font-family:"Space Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:12.8px;line-height:1.55;
+  display:flex;flex-direction:column;gap:10px;flex:1;overflow:auto;
+}
+.path{color:#22c55e;}
+.cmd-row{display:flex;flex-wrap:wrap;gap:8px;}
+.cmd{border:1px solid rgba(148,163,184,.20);background:rgba(17,24,39,.72);color:#e5e7eb;border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer;}
+.cmd:hover{border-color:rgba(56,189,248,.6);}
+.input-row{display:flex;gap:10px;align-items:center;border-top:1px solid rgba(148,163,184,.16);padding-top:12px;margin-top:8px;}
+.term-input{flex:1;border:0;outline:0;background:transparent;color:#e5e7eb;font:inherit;}
+.term-output{white-space:pre-wrap;padding-top:8px;border-top:1px dashed rgba(148,163,184,.18);margin-top:6px;opacity:.95;}
+
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .gallery{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .skill-groups{grid-template-columns:1fr;}
+}
+@media (max-width:620px){
+  .grid{grid-template-columns:1fr;}
+  .gallery{grid-template-columns:1fr;}
+  .switch button{padding:8px 10px;}
+}
+
+/* Full-page hero */
+.hero{align-items:center;min-height:calc(100vh - 150px);padding:10px 0 10px;}
+@media (max-width: 920px){
+  .hero{min-height:auto;align-items:start;padding:18px 0 4px;}
+}
+
+/* ===== Hero image card ===== */
+.hero-photo-card{position:relative;overflow:hidden;min-height:320px;display:flex;flex-direction:column;gap:10px;transform-style:preserve-3d;will-change:transform;}
+.hero-photo-card .photo-wrap{
+  position:relative;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(148,163,184,0.22);
+  background:rgba(15,23,42,0.25);
+  transform:translateZ(10px);
+  transform-style:preserve-3d;
+}
+body[data-theme="light"] .hero-photo-card .photo-wrap{
+  border-color:rgba(15,23,42,0.12);
+  background:rgba(255,255,255,0.5);
+}
+.hero-photo-card img{
+  width:100%;height:360px;object-fit:cover;display:block;
+  transform:translateZ(18px);
+  filter:saturate(1.05) contrast(1.03);
+  transition:transform 450ms ease, filter 450ms ease;
+}
+.hero-photo-card .sheen{
+  position:absolute;inset:-40%;
+  background:radial-gradient(closest-side, rgba(255,255,255,0.28), transparent 60%);
+  transform:translate(var(--hx, -20%), var(--hy, -20%));
+  mix-blend-mode:soft-light;
+  opacity:0.0;
+  transition:opacity 220ms ease;
+}
+.hero-photo-card .ring{position:absolute;inset:10px;border-radius:16px;border:1px solid rgba(56,189,248,0.22);opacity:0.0;transition:opacity 220ms ease;}
+.hero-photo-card .caption, .hero-photo-card .badge{display:none !important;}
+</style>
+</head>
+
+<body data-theme="dark">
+<div aria-hidden="true" class="bg"></div>
+<div aria-hidden="true" class="cursor-bubble" id="cursorBubble"></div>
+
+<div class="topbar" role="banner">
+  <a class="logo" href="#top" aria-label="Home">
+    <span class="logo-mark">SJ’s</span>
+  </a>
+
+  <nav aria-label="Primary" class="nav">
+    <a href="#projects">Projects</a>
+    <a href="#highlights">Highlights</a>
+    <a href="#experience">Experience</a>
+    <a href="#skills">Skills</a>
+    <a href="#awards">Awards</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <div aria-label="Theme switcher" class="switch">
+    <button aria-pressed="true" data-theme-btn="dark" type="button"><span>🌑</span>Dark</button>
+    <button aria-pressed="false" data-theme-btn="light" type="button"><span>🌕</span>Light</button>
+    <button aria-pressed="false" data-theme-btn="terminal" type="button"><span>⌨️</span>Terminal</button>
+  </div>
+</div>
+
+<main class="standard-view">
+  <div id="top"></div>
+  <div class="wrap">
+    <div class="container">
+      <div class="hero reveal">
+        <div>
+    
+          <h1>Susmitha Jejigari<br/><span class="accent">Backend Engineer</span> building secure, scalable systems.</h1>
+          <p class="lead">Java + Spring Boot + microservices for distributed backends. Security automation and reliable pipelines (Kafka, CI/CD). Open to backend/security roles.</p>
+
+          <div class="meta" aria-label="Key technologies">
+            <span class="pill">Java / Spring Boot</span>
+            <span class="pill">Microservices</span>
+            <span class="pill">Kafka</span>
+            <span class="pill">AWS</span>
+            <span class="pill">Docker</span>
+            <span class="pill">Kubernetes</span>
+            <span class="pill">App Security</span>
+          </div>
+
+          <div class="cta">
+            <a class="btn primary" href="https://www.linkedin.com/in/susmitha-jejigari" rel="noopener" target="_blank">LinkedIn ↗</a>
+            <a class="btn ghost" href="https://github.com/Susmitha-J" rel="noopener" target="_blank">GitHub ↗</a>
+            <a class="btn ghost" href="#">Resume</a>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <div class="hero-photo-card" id="heroPhotoCard">
+            <div aria-label="Profile photo preview" class="photo-wrap">
+              <img alt="Portrait placeholder" id="heroPhoto" loading="lazy"
+                   src="profile.jpeg"/>
+              <div aria-hidden="true" class="sheen"></div>
+              <div aria-hidden="true" class="ring"></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div aria-hidden="true" class="scroll-hint reveal"><span></span></div>
+
+      <!-- Starry Night moving divider -->
+      <section class="art-break art-break--full reveal" aria-label="Starry Night divider">
+        <div class="art-break__overlay"></div>
+        <div class="art-break__content">
+          <p class="art-break__line">Pause. Breathe. Continue.</p>
+        </div>
+      </section>
+
+      <!-- (Everything below is unchanged from your file; kept as-is) -->
+      <section class="reveal" id="projects">
+        <div class="section-head">
+          <h2>Projects</h2>
+          <p class="sub">A curated set of builds from GitHub. Thesis first, then production-style backend work.</p>
+        </div>
+        <div class="grid cards">
+          <article class="card">
+            <div class="card-top">
+              <h3>Secure Digital Twin Backend System (Thesis)</h3>
+              <p>Secure backend communication system exploring protocol tradeoffs (REST/WebSocket/MQTT) with blockchain-backed integrity and event streaming.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Kafka</span><span class="tag">Hyperledger Fabric</span><span class="tag">REST</span><span class="tag">WebSocket</span><span class="tag">MQTT</span>
+            </div>
+            <div class="card-actions">
+              <a class="link" href="https://github.com/Susmitha-J" rel="noopener" target="_blank">View on GitHub ↗</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-top">
+              <h3>Spring Boot Microservices &amp; Docker</h3>
+              <p>Microservices setup with containerized services and a clean backend-first architecture. Built to practice real deployment workflows.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Spring Boot</span><span class="tag">Microservices</span><span class="tag">Docker</span>
+            </div>
+            <div class="card-actions">
+              <a class="link" href="https://github.com/Susmitha-J/Spring-Boot-Microservices-and-Docker" rel="noopener" target="_blank">Repo ↗</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-top">
+              <h3>Design Patterns with Spring Boot</h3>
+              <p>A practical walkthrough of common design patterns implemented in Spring Boot with a focus on clean, reusable code.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Spring Boot</span><span class="tag">Design Patterns</span><span class="tag">Clean Code</span>
+            </div>
+            <div class="card-actions">
+              <a class="link" href="https://github.com/Susmitha-J/Design-Patterns-with-Spring-Boot" rel="noopener" target="_blank">Repo ↗</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-top">
+              <h3>Security Automation &amp; Vulnerability Reporting</h3>
+              <p>Automation workflows for validating, reporting, and tracking vulnerabilities to reduce manual security ops effort.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Python</span><span class="tag">Qualys</span><span class="tag">Automation</span>
+            </div>
+            <div class="card-actions">
+              <a class="link" href="https://github.com/Susmitha-J" rel="noopener" target="_blank">GitHub ↗</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-top">
+              <h3>Identity &amp; User Management</h3>
+              <p>Auth-focused backend service patterns: users, roles, permissions, and clean API boundaries.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Spring Boot</span><span class="tag">Security</span><span class="tag">REST</span>
+            </div>
+            <div class="card-actions">
+              <a class="link" href="https://github.com/Susmitha-J" rel="noopener" target="_blank">GitHub ↗</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-top">
+              <h3>Fraud Detection (Finance)</h3>
+              <p>Explorations into fraud signals and detection pipelines with a focus on maintainable code and clear outputs.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Data</span><span class="tag">Pipelines</span><span class="tag">Security</span>
+            </div>
+            <div class="card-actions">
+              <a class="link" href="https://github.com/Susmitha-J" rel="noopener" target="_blank">GitHub ↗</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="reveal" id="highlights">
+        <div class="section-head"><h2>Highlights</h2><p class="sub">Outcomes pulled from your LinkedIn summary.</p></div>
+        <div class="card">
+          <ul>
+            <li>Transformed from refactoring monolith backend code to delivering real-time data streaming across 15+ REST APIs to Kafka and integrating complex payment APIs into PayLah (million-user mobile wallet).</li>
+            <li>Built API automation frameworks (Spring Karate) and automated vulnerability management using Python batch jobs and Qualys, reducing manual effort and errors by ~70%.</li>
+            <li>Researched and designed containerized microservices (Python Flask + Docker), deployed on AWS Kubernetes clusters for secure backend communication in a Digital Twin system.</li>
+            <li>Elevated code coverage to ~80% with JUnit/Mockito and reduced Jenkins pipeline failures by addressing SonarQube issues.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="reveal" id="experience">
+        <div class="section-head"><h2>Experience</h2><p class="sub">A timeline recruiters can scan fast.</p></div>
+        <div class="timeline">
+          <div class="titem">
+            <div class="top"><div class="tcompany">Missouri University of Science and Technology</div></div>
+            <div class="trole"><strong>Student Assistant IT</strong> <span class="tdates">· Dec 2024 – Present</span></div>
+            <ul><li>Verifies vulnerability reports using Qualys and creates actionable remediation reports for stakeholders.</li></ul>
+
+            <div class="trole"><strong>Security Analyst Intern</strong> <span class="tdates">· Jun 2025 – Aug 2025</span></div>
+            <ul>
+              <li>Monitored and analyzed security alerts; supported vulnerability assessment and remediation tracking using Qualys.</li>
+              <li>Participated in risk reviews/internal audits (NIST 800-171, FERPA, HIPAA); contributed to incident response documentation.</li>
+            </ul>
+
+            <div class="trole"><strong>Graduate Research Assistant</strong> <span class="tdates">· Jan 2025 – May 2025</span></div>
+            <ul><li>Thesis research: cybersecurity in additive manufacturing using blockchain security.</li></ul>
+
+            <div class="trole"><strong>Student Assistant Teaching</strong> <span class="tdates">· Feb 2024 – May 2024</span></div>
+            <ul><li>Worked as a grader.</li></ul>
+          </div>
+
+          <div class="titem">
+            <div class="top"><div class="tcompany">DBS Bank</div></div>
+            <div class="trole"><strong>Analyst</strong> <span class="tdates">· Sep 2022 – Jul 2023</span></div>
+            <ul>
+              <li>Engineered RESTful APIs for DBS PayLah payment services using Java/J2EE, Spring Boot, microservices, Hibernate, and JDBC.</li>
+              <li>Implemented changes across 15+ APIs to stream transaction data to Kafka for fraud processing.</li>
+              <li>Built a Spring Boot batch job to ship weekly fraud-account outputs to AWS S3; reduced manual handling time by ~50%.</li>
+              <li>Streamlined CI/CD using Jenkins to improve deployment speed.</li>
+            </ul>
+
+            <div class="trole"><strong>Senior Officer</strong> <span class="tdates">· Jul 2021 – Sep 2022</span></div>
+            <ul>
+              <li>Elevated code coverage to ~80% (JUnit/Mockito) and reduced pipeline failures by fixing SonarQube issues.</li>
+              <li>Collaborated with pen-test team to remediate vulnerabilities and reduce major security threats (~25%).</li>
+              <li>Automated API testing with Karate (BDD/Gherkin), cutting manual testing effort by ~50%.</li>
+              <li>Improved debugging via Log4J/SLF4J and production log analysis.</li>
+            </ul>
+          </div>
+
+          <div class="titem">
+            <div class="top"><div class="tcompany">Society for Space Education Research and Development (SSERD)</div></div>
+            <div class="trole"><strong>Software Engineer Intern</strong> <span class="tdates">· Jan 2020 – Dec 2020</span></div>
+            <ul>
+              <li>Developed a community platform for space-related content using React (frontend), Spring Boot (backend), and MongoDB.</li>
+              <li>Enabled likes, comments, and curated collections to promote engagement and retention.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" id="skills">
+        <div class="section-head"><h2>Skills</h2><p class="sub">Grouped for readability.</p></div>
+        <div class="skill-groups">
+          <div class="card skill-group">
+            <div class="sg-head"><h3>Backend</h3><span class="sub">7 tools</span></div>
+            <div class="skill-set"><span class="tag">Java</span><span class="tag">Spring Boot</span><span class="tag">Microservices</span><span class="tag">REST APIs</span><span class="tag">Spring MVC</span><span class="tag">Hibernate/JPA</span><span class="tag">Maven</span></div>
+          </div>
+          <div class="card skill-group">
+            <div class="sg-head"><h3>Distributed &amp; Data</h3><span class="sub">3 tools</span></div>
+            <div class="skill-set"><span class="tag">Kafka</span><span class="tag">Spark</span><span class="tag">Hadoop</span></div>
+          </div>
+          <div class="card skill-group">
+            <div class="sg-head"><h3>Datastores</h3><span class="sub">3 tools</span></div>
+            <div class="skill-set"><span class="tag">MySQL</span><span class="tag">MongoDB</span><span class="tag">Neo4j</span></div>
+          </div>
+          <div class="card skill-group">
+            <div class="sg-head"><h3>Cloud &amp; DevOps</h3><span class="sub">6 tools</span></div>
+            <div class="skill-set"><span class="tag">AWS</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Jenkins</span><span class="tag">Git</span><span class="tag">Bitbucket</span></div>
+          </div>
+          <div class="card skill-group">
+            <div class="sg-head"><h3>Security</h3><span class="sub">7 tools</span></div>
+            <div class="skill-set"><span class="tag">Vulnerability Mgmt</span><span class="tag">Compliance Automation</span><span class="tag">Network Security</span><span class="tag">Qualys</span><span class="tag">SonarQube</span><span class="tag">Grafana</span><span class="tag">Kibana</span></div>
+          </div>
+          <div class="card skill-group">
+            <div class="sg-head"><h3>Frontend</h3><span class="sub">3 tools</span></div>
+            <div class="skill-set"><span class="tag">React</span><span class="tag">Angular</span><span class="tag">TypeScript</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" id="certs">
+        <div class="section-head"><h2>Certifications</h2><p class="sub">Cybersecurity course track.</p></div>
+        <div class="grid">
+          <article class="card"><h3>Foundations of Cybersecurity</h3><p>Cybersecurity coursework focusing on detection/response, network security, and practical job readiness.</p></article>
+          <article class="card"><h3>Tools of the Trade: Linux and SQL</h3><p>Cybersecurity coursework focusing on detection/response, network security, and practical job readiness.</p></article>
+          <article class="card"><h3>Connect and Protect: Networks and Network Security</h3><p>Cybersecurity coursework focusing on detection/response, network security, and practical job readiness.</p></article>
+          <article class="card"><h3>Sound the Alarm: Detection and Response</h3><p>Cybersecurity coursework focusing on detection/response, network security, and practical job readiness.</p></article>
+          <article class="card"><h3>Put It to Work: Prepare for Cybersecurity Jobs</h3><p>Cybersecurity coursework focusing on detection/response, network security, and practical job readiness.</p></article>
+        </div>
+      </section>
+
+      <section class="reveal" id="awards">
+        <div class="section-head"><h2>Awards &amp; recognition</h2><p class="sub">Drop your award images here (we can wire click-to-view next).</p></div>
+        <div class="gallery">
+          <div class="gcard"><div class="ph">Peer-to-Peer Award (image)</div><div class="cap">DBS peer recognition award image.</div></div>
+          <div class="gcard"><div class="ph">Peer-to-Peer Award (image)</div><div class="cap">DBS peer recognition award image.</div></div>
+          <div class="gcard"><div class="ph">Peer-to-Peer Award (image)</div><div class="cap">DBS peer recognition award image.</div></div>
+          <div class="gcard"><div class="ph">Certificate (image/PDF)</div><div class="cap">Google Cybersecurity certificate image/PDF.</div></div>
+        </div>
+      </section>
+
+      <section class="reveal" id="interests">
+        <div class="section-head"><h2>Interests</h2><p class="sub">Professional focus areas.</p></div>
+        <div class="card">
+          <div class="skill-set">
+            <span class="tag">Distributed systems</span>
+            <span class="tag">Application security</span>
+            <span class="tag">DevOps automation</span>
+            <span class="tag">Event-driven architectures</span>
+            <span class="tag">Secure communication protocols</span>
+            <span class="tag">Open-source</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" id="contact">
+        <div class="section-head"><h2>Contact</h2><p class="sub">Fast paths.</p></div>
+        <div class="card">
+          <p style="margin:0 0 12px;">Email: <a href="mailto:susmithajejigari@gmail.com" style="color:inherit;">susmithajejigari@gmail.com</a></p>
+          <div class="cta">
+            <a class="btn primary" href="mailto:susmithajejigari@gmail.com?subject=Portfolio%20Inquiry&body=Hi%20Susmitha,%0A%0A">Email me ↗</a>
+            <a class="btn ghost" href="https://www.linkedin.com/in/susmitha-jejigari" rel="noopener" target="_blank">LinkedIn ↗</a>
+            <a class="btn ghost" href="https://github.com/Susmitha-J" rel="noopener" target="_blank">GitHub ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <footer class="reveal">
+        <div class="fine">© <span id="year"></span> Susmitha Jejigari.</div>
+        <div class="fine">Terminal mode has shortcuts for people who hate scrolling.</div>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<main class="terminal-view">
+  <div class="term-wrap">
+    <div class="term-container">
+      <div aria-label="Terminal portfolio" class="term-window" role="region">
+        <div class="term-head">
+          <div aria-hidden="true" class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div style="opacity:.8;">portfolio.sh</div><div style="opacity:.7;">UTF-8</div>
+        </div>
+        <div class="term-body">
+          <div id="terminal-log">
+            <div><span class="path">visitor@portfolio</span>:~$ <span>hello</span></div>
+            <div>Welcome. Type a command, press Enter, or click one below.</div>
+            <div style="color:#9ca3af;">Commands:</div>
+          </div>
+
+          <div aria-label="Terminal commands" class="cmd-row">
+            <button class="cmd" data-cmd="about" type="button">about</button>
+            <button class="cmd" data-cmd="thesis" type="button">thesis</button>
+            <button class="cmd" data-cmd="experience" type="button">experience</button>
+            <button class="cmd" data-cmd="skills" type="button">skills</button>
+            <button class="cmd" data-cmd="links" type="button">links</button>
+            <button class="cmd" data-cmd="help" type="button">help</button>
+            <button class="cmd" data-cmd="clear" type="button">clear</button>
+          </div>
+
+          <div class="input-row">
+            <span class="path">visitor@portfolio:~$</span>
+            <input autocomplete="off" class="term-input" id="terminal-input" placeholder="try: thesis" spellcheck="false" type="text"/>
+          </div>
+          <div aria-live="polite" class="term-output" id="terminal-output"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const body = document.body;
+const themeButtons = Array.from(document.querySelectorAll('[data-theme-btn]'));
+function setTheme(mode){
+  body.setAttribute('data-theme', mode);
+  themeButtons.forEach(btn => {
+    const active = btn.getAttribute('data-theme-btn') === mode;
+    btn.setAttribute('aria-pressed', String(active));
+  });
+  if(mode === 'terminal') {
+    const ti = document.getElementById('terminal-input');
+    if(ti) ti.focus();
+  }
+}
+themeButtons.forEach(btn => btn.addEventListener('click', () => setTheme(btn.getAttribute('data-theme-btn'))));
+
+const bubble = document.getElementById('cursorBubble');
+let targetX = window.innerWidth * 0.5;
+let targetY = window.innerHeight * 0.35;
+let currentX = targetX, currentY = targetY;
+
+function setVars(x,y){
+  body.style.setProperty('--mx', x + 'px');
+  body.style.setProperty('--my', y + 'px');
+  if(bubble) bubble.style.transform = 'translate(' + x + 'px, ' + y + 'px) translate(-50%, -50%)';
+}
+window.addEventListener('mousemove', (e)=>{targetX=e.clientX; targetY=e.clientY;}, {passive:true});
+window.addEventListener('touchmove', (e)=>{
+  if(!e.touches||!e.touches.length) return;
+  targetX=e.touches[0].clientX; targetY=e.touches[0].clientY;
+}, {passive:true});
+
+function animateBg(){
+  currentX += (targetX - currentX) * 0.08;
+  currentY += (targetY - currentY) * 0.08;
+  setVars(currentX,currentY);
+  requestAnimationFrame(animateBg);
+}
+setVars(currentX,currentY); animateBg();
+
+const els = Array.from(document.querySelectorAll('.reveal'));
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); });
+}, {threshold:0.12});
+els.forEach(el=>io.observe(el));
+
+const termInput = document.getElementById('terminal-input');
+const termOutput = document.getElementById('terminal-output');
+const termLog = document.getElementById('terminal-log');
+
+const RESPONSES = {
+  help:'Commands:\n  about        - short summary\n  thesis       - featured research project\n  experience   - roles + focus\n  skills       - key tools\n  links        - LinkedIn/GitHub/email\n  clear        - clear screen',
+  about:`Susmitha Jejigari — Backend Engineer\nJava/Spring Boot · Microservices · Kafka · AWS\nSecurity automation + reliable distributed backends.`,
+  thesis:'Secure Digital Twin Backend System (Thesis)\n- containerized services\n- protocol evaluation: REST / WebSocket / MQTT\n- blockchain-backed integrity + event streaming',
+  experience:'DBS Bank: PayLah APIs + Kafka pipelines + CI/CD improvements\nMissouri S&T: Qualys vulnerability validation + security internship + research',
+  skills:'Java · Spring Boot · Microservices · REST\nKafka · AWS · Docker · Kubernetes · Jenkins\nPython · Qualys · SonarQube · Network Security',
+  links:'Email: susmithajejigari@gmail.com\nLinkedIn: https://www.linkedin.com/in/susmitha-jejigari\nGitHub: https://github.com/Susmitha-J'
+};
+
+function appendLine(text){
+  const line=document.createElement('div');
+  line.textContent=text;
+  termLog.appendChild(line);
+  termLog.scrollTop=termLog.scrollHeight;
+}
+function runCommand(raw){
+  const cmd=(raw||'').trim().toLowerCase();
+  if(!cmd) return;
+  appendLine('visitor@portfolio:~$ ' + cmd);
+  if(cmd==='clear') {
+    termLog.innerHTML='';
+    const a=document.createElement('div'); a.innerHTML='<span class="path">visitor@portfolio</span>:~$ <span>hello</span>'; termLog.appendChild(a);
+    const b=document.createElement('div'); b.textContent='Welcome. Type a command, press Enter, or click one below.'; termLog.appendChild(b);
+    const c=document.createElement('div'); c.style.color='#9ca3af'; c.textContent='Commands:'; termLog.appendChild(c);
+    if(termOutput) termOutput.textContent='';
+    return;
+  }
+  const out = RESPONSES[cmd] || ('Unknown command: ' + cmd + '\nType "help" to see options.');
+  if(termOutput) termOutput.textContent = out;
+}
+if(termInput) termInput.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){runCommand(termInput.value); termInput.value='';}
+});
+document.querySelectorAll('[data-cmd]').forEach(btn=>btn.addEventListener('click',()=>{
+  runCommand(btn.getAttribute('data-cmd'));
+  if(termInput) termInput.focus();
+}));
+
+/* Hero photo card tilt */
+const heroCard = document.getElementById('heroPhotoCard');
+if (heroCard && !prefersReduced) {
+  const maxTilt = 22;
+  const maxRoll = 6;
+  const damp = 0.14;
+  let tx=0, ty=0, tz=0, cx=0, cy=0, cz=0;
+
+  function animateTilt(){
+    cx += (tx - cx) * damp;
+    cy += (ty - cy) * damp;
+    cz += (tz - cz) * damp;
+    heroCard.style.transform = `perspective(1100px) rotateX(${cy}deg) rotateY(${cx}deg) rotateZ(${cz}deg) scale(1.02)`;
+    requestAnimationFrame(animateTilt);
+  }
+  animateTilt();
+
+  heroCard.addEventListener('mousemove', (e) => {
+    const r = heroCard.getBoundingClientRect();
+    const px = (e.clientX - (r.left + r.width/2)) / (r.width/2);
+    const py = (e.clientY - (r.top + r.height/2)) / (r.height/2);
+    tx =  px * maxTilt;
+    ty = -py * maxTilt;
+    tz =  px * maxRoll;
+
+    heroCard.style.setProperty('--hx', (px*18)+'%');
+    heroCard.style.setProperty('--hy', (py*18)+'%');
+  }, {passive:true});
+
+  heroCard.addEventListener('mouseleave', () => { tx = 0; ty = 0; tz = 0; });
+}
+
+/* Topbar scroll treatment (THIS is what triggers the background) */
+const topbar = document.querySelector('.topbar');
+function onScroll() {
+  if (!topbar) return;
+  topbar.classList.toggle('is-scrolled', window.scrollY > 8);
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+</script>
+</body>
+</html>
